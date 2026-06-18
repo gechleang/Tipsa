@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import ProductCard from '../components/ProductCard.vue'
 import { products, reviews, sellers } from '../data/mockData'
@@ -84,6 +84,19 @@ const productReviews = computed(() => reviews.filter((entry) => entry.productId 
 if (product.value) {
   activeImage.value = product.value.images[0]
 }
+
+watch(
+  product,
+  (value) => {
+    if (!value) return
+
+    const key = 'tipsa-recent-products'
+    const parsed = JSON.parse(localStorage.getItem(key) || '[]')
+    const deduped = [value.id, ...parsed.filter((id) => id !== value.id)].slice(0, 8)
+    localStorage.setItem(key, JSON.stringify(deduped))
+  },
+  { immediate: true },
+)
 </script>
 
 <style scoped>
